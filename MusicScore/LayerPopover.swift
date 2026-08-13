@@ -11,11 +11,35 @@ import PencilKit
 struct LayerPopover: View {
     @Binding var layers: [DrawingLayer]
     
+    @State private var deleteAlertMessage: String? = nil
+    
     var body: some View {
         VStack {
-            Text("Layers")
-                .font(.headline)
-                .bold()
+            ZStack {
+                Text("Layers")
+                    .font(.headline)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .center)
+                 
+                HStack {
+                    Button {
+                        
+                    } label: {
+                        Image("merge")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 20)
+                        
+                    }
+                    
+                    Button {
+                        layers.append(DrawingLayer(canvas: PassThroughCanvasView(), name: "Layer \(layers.count)"))
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
             
             Divider()
                 .padding(.vertical, 10)
@@ -39,8 +63,10 @@ struct LayerPopover: View {
                             Label("Rename", systemImage: "pencil")
                         }
                         
-                        Button {
-                            
+                        Button { //make sure the duplicate button works properly
+                            let canvasCopy = PassThroughCanvasView()
+                            canvasCopy.drawing = layer.canvas.drawing
+                            layers.insert(DrawingLayer(canvas: canvasCopy, name: "Copy of " + layer.name.trimmingCharacters(in: .whitespacesAndNewlines), isVisible: layer.isVisible, id: UUID()), at: i + 1)
                         } label: {
                             Label("Duplicate", systemImage: "plus.square.on.square")
                         }
@@ -53,11 +79,11 @@ struct LayerPopover: View {
                         
                         Button(role: .destructive) {
                             if i == 0 {
-                                Text("Cannot delete the whiteout layer")
+                                deleteAlertMessage = "Cannot delete the whiteout layer"
                             } else if layers.count == 2 {
-                                Text("Cannot delete the only normal layer")
+                                deleteAlertMessage = "Cannot delete the only normal layer"
                             } else {
-                                //delete
+                                layers.remove(at: i)
                             }
                         } label: {
                             Label("Delete", systemImage: "trash")
@@ -71,6 +97,14 @@ struct LayerPopover: View {
         }
         .frame(width: 400)
         .padding()
+        .popover(isPresented: Binding(
+            get: { deleteAlertMessage != nil },
+            set: { if !$0 { deleteAlertMessage = nil } }
+        )) {
+            Text(deleteAlertMessage ?? "")
+                .padding()
+                .frame(width: 200)
+        }
     }
 }
 
