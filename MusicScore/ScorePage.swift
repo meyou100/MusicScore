@@ -11,6 +11,7 @@ import PencilKit
 struct ScorePage: View {
     let score: Score
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.undoManager) private var undoManager
     
     @State private var layers: [DrawingLayer] = [//Change this to be serialized between uses of the app
         DrawingLayer(canvas: PassThroughCanvasView(), name: "Whiteout"),
@@ -19,7 +20,7 @@ struct ScorePage: View {
     @State private var activeLayer: Int = 1
     
     @State private var toolPresets: [ToolPreset] = [//Change this to be serialized between uses of the app
-        ToolPreset.newDefault(for: .ink),
+        ToolPreset.newDefault(for: .pen),
         ToolPreset.newDefault(for: .eraser),
         ToolPreset.newDefault(for: .whiteout),
         ToolPreset.newDefault(for: .highlighter),
@@ -63,14 +64,14 @@ struct ScorePage: View {
                             Image(systemName: "chevron.left")
                         }
                         
-                        Button { //implement unbdo
-                            
+                        Button { //implement undo
+                            undoManager?.undo()
                         } label: {
                             Image(systemName: "arrow.uturn.backward")
                         }
                         
                         Button { //implement redo
-                            
+                            undoManager?.redo()
                         } label: {
                             Image(systemName: "arrow.uturn.forward")
                         }
