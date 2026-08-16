@@ -39,7 +39,7 @@ struct InkEditorView: View {
                 
                 Spacer()
                 
-                Text("Pen")
+                Text(preset.kind.label)
                     .font(.headline)
                 
                 Spacer()
@@ -129,7 +129,7 @@ struct InkEditorView: View {
 
 
 #Preview {
-    @Previewable @State var preset = ToolPreset.newDefault(for: .ink)
+    @Previewable @State var preset = ToolPreset.newDefault(for: .pen)
     
     InkEditorView(preset: Binding(
         get: { preset },
