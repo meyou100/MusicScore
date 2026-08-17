@@ -12,18 +12,23 @@ struct LassoEditorView: View {
     
     var body: some View {
         VStack(spacing: 15) {
-            HStack {
+            ZStack {
                 Text("Lasso")
                     .font(.headline)
-                    .frame(maxWidth: .infinity)
                 
-                Button(role: .destructive) {
-                    remove()
-                } label: {
-                    Text("Remove")
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                HStack {
+                    Spacer()
+                    
+                    Button(role: .destructive) {
+                        remove()
+                    } label: {
+                        Text("Remove")
+                    }
                 }
             }
+            
+            Divider()
+                .padding(.vertical, 10)
             
             Text("No settings for lasso")
         }
