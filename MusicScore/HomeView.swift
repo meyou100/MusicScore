@@ -38,6 +38,7 @@ struct HomeView: View {
                 }
                 
                 Divider()
+                
                 ScrollView(.vertical) {
                     ForEach(Constants.scores) { score in
                         NavigationLink {

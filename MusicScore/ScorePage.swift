@@ -17,7 +17,6 @@ struct ScorePage: View {
         DrawingLayer(canvas: PassThroughCanvasView(), name: "Whiteout"),
         DrawingLayer(canvas: PassThroughCanvasView(), name: "Layer 1")
     ]
-    @State private var activeLayer: Int = 1
     
     @State private var toolPresets: [ToolPreset] = [//Change this to be serialized between uses of the app
         ToolPreset.newDefault(for: .pen),
@@ -31,6 +30,7 @@ struct ScorePage: View {
     @State private var isErasing: Bool = false
     @State private var activeToolIndex: Int = 0
     @State private var editingPresetIndex: Int? = nil
+    @State private var activeLayer: Int = 1
     @State private var showLayerPopover: Bool = false
     
     @State private var selectedColor: Color? = nil //are these even used?
@@ -64,13 +64,13 @@ struct ScorePage: View {
                             Image(systemName: "chevron.left")
                         }
                         
-                        Button { //implement undo
+                        Button {
                             undoManager?.undo()
                         } label: {
                             Image(systemName: "arrow.uturn.backward")
                         }
                         
-                        Button { //implement redo
+                        Button {
                             undoManager?.redo()
                         } label: {
                             Image(systemName: "arrow.uturn.forward")
@@ -82,7 +82,7 @@ struct ScorePage: View {
                             Image(systemName: "square.3.layers.3d")
                         }
                         .popover(isPresented: $showLayerPopover) {
-                            LayerPopover(layers: $layers)
+                            LayerPopover(layers: $layers, activeLayer: $activeLayer, activeTool: toolPresets[activeToolIndex].makePKTool())
                         }
                     }
                     .font(.system(size: 20, weight: .semibold))
@@ -128,7 +128,7 @@ struct ScorePage: View {
                                 }
                                 .frame(width: 20, height: 25)
                                 .padding(6)
-                                .background(activeToolIndex == i ? Color.blue.opacity(0.3) : .clear)
+                                .background(activeToolIndex == i ? .blue.opacity(0.3) : .clear)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             .popover(isPresented: Binding(
@@ -146,8 +146,9 @@ struct ScorePage: View {
                                         if !toolPresets.isEmpty {
                                             activeToolIndex = 0
                                             applyActiveTool()
-                                        } // deal with the else case
-                                    }
+                                        }
+                                    },
+                                    removable: toolPresets.count > 1
                                 )
                             }
                             
@@ -185,7 +186,10 @@ struct ScorePage: View {
     }
         
     private func applyActiveTool() {
-        layers[getActiveLayer()].canvas.tool = toolPresets[activeToolIndex].makePKTool()
+        let t = toolPresets[activeToolIndex].makePKTool()
+        for layer in layers {
+            layer.canvas.tool = t
+        }
     }
     
     private func getActiveLayer() -> Int {

@@ -40,11 +40,6 @@
 			path = MusicScoreTests;
 			sourceTree = "<group>";
 		};
-		FF2F90CA301C2B1200518475 /* MusicScoreUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MusicScoreUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,7 +72,6 @@
 			children = (
 				FF2F90AE301C2B1000518475 /* MusicScore */,
 				FF2F90C0301C2B1200518475 /* MusicScoreTests */,
-				FF2F90CA301C2B1200518475 /* MusicScoreUITests */,
 				FF2F90AD301C2B1000518475 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -152,9 +146,6 @@
 			);
 			dependencies = (
 				FF2F90C9301C2B1200518475 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				FF2F90CA301C2B1200518475 /* MusicScoreUITests */,
 			);
 			name = MusicScoreUITests;
 			packageProductDependencies = (
