@@ -12,6 +12,7 @@ import SwiftUI
 struct StampEditorView: View {
     @Binding var preset: ToolPreset
     var remove: () -> Void
+    let removable: Bool
     
     private var width: Binding<CGFloat> {
         Binding(
@@ -28,7 +29,7 @@ struct StampEditorView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             HStack {
                 Button {
                     preset.reset()
@@ -48,6 +49,7 @@ struct StampEditorView: View {
                 } label: {
                     Text("Remove")
                 }
+                .disabled(!removable)
             }
             
             Divider()
@@ -68,5 +70,5 @@ struct StampEditorView: View {
         get: { preset },
         set: { preset = $0 }
     ),
-                    remove: {})
+                    remove: {}, removable: true)
 }

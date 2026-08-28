@@ -98,14 +98,14 @@ enum ToolKind: String, CaseIterable {
     }
     
     @ViewBuilder
-    func editorView(preset: Binding<ToolPreset>, remove: @escaping () -> Void) -> some View {
+    func editorView(preset: Binding<ToolPreset>, remove: @escaping () -> Void, removable: Bool) -> some View {
         switch self {
-        case .pen: InkEditorView(preset: preset, remove: remove)
-        case .whiteout: InkEditorView(preset: preset, remove: remove)
-        case .eraser: EraserEditorView(preset: preset, remove: remove)
-        case .highlighter: HighlighterEditorView(preset: preset, remove: remove)
-        case .lasso: LassoEditorView(remove: remove)
-        case .stamp: StampEditorView(preset: preset, remove: remove)
+        case .pen: InkEditorView(preset: preset, remove: remove, removable: removable)
+        case .whiteout: InkEditorView(preset: preset, remove: remove, removable: removable)
+        case .eraser: EraserEditorView(preset: preset, remove: remove, removable: removable)
+        case .highlighter: HighlighterEditorView(preset: preset, remove: remove, removable: removable)
+        case .lasso: LassoEditorView(remove: remove, removable: removable)
+        case .stamp: StampEditorView(preset: preset, remove: remove, removable: removable)
         }
     }
 }

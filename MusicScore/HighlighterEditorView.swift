@@ -10,6 +10,7 @@ import SwiftUI
 struct HighlighterEditorView: View {
     @Binding var preset: ToolPreset
     var remove: () -> Void
+    let removable: Bool
     
     private var width: Binding<CGFloat> {
         Binding(
@@ -57,6 +58,7 @@ struct HighlighterEditorView: View {
                 } label: {
                     Text("Remove")
                 }
+                .disabled(!removable)
             }
             
             Divider()
@@ -167,5 +169,5 @@ struct HighlighterEditorView: View {
         get: { preset },
         set: { preset = $0 }
     ),
-                          remove: {})
+                          remove: {}, removable: true)
 }

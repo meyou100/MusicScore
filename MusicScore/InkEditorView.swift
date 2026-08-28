@@ -10,6 +10,7 @@ import SwiftUI
 struct InkEditorView: View {
     @Binding var preset: ToolPreset
     var remove: () -> Void
+    let removable: Bool
     
     private var width: Binding<CGFloat> {
         Binding(
@@ -49,6 +50,7 @@ struct InkEditorView: View {
                 } label: {
                     Text("Remove")
                 }
+                .disabled(!removable)
             }
             
             Divider()
@@ -135,5 +137,5 @@ struct InkEditorView: View {
         get: { preset },
         set: { preset = $0 }
     ),
-                  remove: {})
+                  remove: {}, removable: false)
 }

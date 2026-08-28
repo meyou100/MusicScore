@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LassoEditorView: View {
     var remove: () -> Void
+    let removable: Bool
     
     var body: some View {
         VStack(spacing: 15) {
@@ -24,6 +25,7 @@ struct LassoEditorView: View {
                     } label: {
                         Text("Remove")
                     }
+                    .disabled(!removable)
                 }
             }
             
@@ -38,5 +40,5 @@ struct LassoEditorView: View {
 }
 
 #Preview {
-    LassoEditorView(remove: {})
+    LassoEditorView(remove: {}, removable: true)
 }

@@ -11,6 +11,7 @@ import PencilKit
 struct EraserEditorView: View {
     @Binding var preset: ToolPreset
     var remove: () -> Void
+    let removable: Bool
     
     @State private var widthText: String = ""
     
@@ -49,6 +50,7 @@ struct EraserEditorView: View {
                 } label: {
                     Text("Remove")
                 }
+                .disabled(!removable)
             }
             
             Divider()
@@ -158,6 +160,6 @@ struct EraserEditorView: View {
         get: { preset },
         set: { preset = $0 }
     ),
-                     remove: {}
+                     remove: {}, removable: true
     )
 }
