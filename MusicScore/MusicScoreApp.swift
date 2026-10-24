@@ -12,6 +12,7 @@ struct MusicScoreApp: App {
     var body: some Scene {
         WindowGroup {
             HomeView()
+                .modelContainer(for: Score.self)
         }
     }
 }

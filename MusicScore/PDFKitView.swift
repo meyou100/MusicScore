@@ -9,11 +9,18 @@ import PDFKit
 import SwiftUI
 
 struct PDFKitView: UIViewRepresentable {
-    let url: URL
+    var file: URL
+    var document: PDFDocument
+    
+    init?(file: URL) {
+        self.file = file
+        guard let document = PDFDocument(url: file) else { return nil }
+        self.document = document
+    }
     
     func makeUIView(context: Context) -> PDFView {
         let pdfView = PDFView()
-        pdfView.document = PDFDocument(url: url)
+        pdfView.document = document
         pdfView.autoScales = true
         pdfView.displayMode = .singlePage
         pdfView.displayDirection = .horizontal

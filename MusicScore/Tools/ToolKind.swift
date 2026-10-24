@@ -104,7 +104,7 @@ enum ToolKind: String, CaseIterable {
         case .whiteout: InkEditorView(preset: preset, remove: remove, removable: removable)
         case .eraser: EraserEditorView(preset: preset, remove: remove, removable: removable)
         case .highlighter: HighlighterEditorView(preset: preset, remove: remove, removable: removable)
-        case .lasso: LassoEditorView(remove: remove, removable: removable)
+        case .lasso: LassoEditorView(preset: preset, remove: remove, removable: removable)
         case .stamp: StampEditorView(preset: preset, remove: remove, removable: removable)
         }
     }

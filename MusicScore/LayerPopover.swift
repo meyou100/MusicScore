@@ -4,12 +4,12 @@
 //
 //  Created by Jonny C on 8/6/26.
 //
-
+#if false
 import SwiftUI
 import PencilKit
 
 struct LayerPopover: View {
-    @Binding var layers: [DrawingLayer]
+    @Binding var layers: [Layer]
     @Binding var activeLayer: Int
     let activeTool: PKTool
     
@@ -86,7 +86,7 @@ struct LayerPopover: View {
                         }
                         
                         Button {
-                            layers.append(DrawingLayer(canvas: PassThroughCanvasView(), name: "Layer \(layers.count)"))
+                            layers.append(Layer.defaultLayer(numberOfLayers: layers.count, numberOfPages: layers[0].pages.count))
                             
                             layers[layers.count - 1].canvas.tool = activeTool
                         } label: {
@@ -231,7 +231,8 @@ struct LayerPopover: View {
 }
 
 #Preview {
-    @Previewable @State var layers = [DrawingLayer(canvas: PassThroughCanvasView(), name: "whiteout"), DrawingLayer(canvas: PassThroughCanvasView(), name: "layer 1"), DrawingLayer(canvas: PassThroughCanvasView(), name: "layer 2")]
-    @Previewable @State var activeLayer = 1
-    LayerPopover(layers: $layers, activeLayer: $activeLayer, activeTool: PKLassoTool())
+////    @Previewable @State var layers = [DrawingLayer(canvas: PassThroughCanvasView(), name: "whiteout"), DrawingLayer(canvas: PassThroughCanvasView(), name: "layer 1"), DrawingLayer(canvas: PassThroughCanvasView(), name: "layer 2")]
+//    @Previewable @State var activeLayer = 1
+//    LayerPopover(layers: $layers, activeLayer: $activeLayer, activeTool: PKLassoTool())
 }
+#endif

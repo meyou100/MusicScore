@@ -9,50 +9,35 @@ import SwiftUI
 import PencilKit
 
 struct ScorePage: View {
-    let score: Score
+    @Bindable var score: Score
     @Environment(\.dismiss) private var dismiss
     @Environment(\.undoManager) private var undoManager
     
-    @State private var layers: [DrawingLayer] = [//Change this to be serialized between uses of the app
-        DrawingLayer(canvas: PassThroughCanvasView(), name: "Whiteout"),
-        DrawingLayer(canvas: PassThroughCanvasView(), name: "Layer 1")
-    ]
-    
-    @State private var toolPresets: [ToolPreset] = [//Change this to be serialized between uses of the app
-        ToolPreset.newDefault(for: .pen),
-        ToolPreset.newDefault(for: .eraser),
-        ToolPreset.newDefault(for: .whiteout),
-        ToolPreset.newDefault(for: .highlighter),
-        ToolPreset.newDefault(for: .lasso),
-        ToolPreset.newDefault(for: .stamp),
-    ]
+    var pageIndex: Int
     
     @State private var isErasing: Bool = false
     @State private var activeToolIndex: Int = 0
     @State private var editingPresetIndex: Int? = nil
     @State private var activeLayer: Int = 1
     @State private var showLayerPopover: Bool = false
-    
-    @State private var selectedColor: Color? = nil //are these even used?
-    @State private var selectedWidth: CGFloat? = nil
-    
-    
-    var fileUrl: URL? { Bundle.main.url(forResource: score.fileName, withExtension: "pdf") }
+    @State private var currentPage: Int = 0
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-            if let fileUrl = fileUrl {
-                PDFKitView(url: fileUrl)
-                    .ignoresSafeArea()
+//            let _ = print(score.pdfPages.count, currentPage)
+            PDFPageView(page: score.pdfPages[currentPage])
+                .ignoresSafeArea()
                 
-                ForEach(Array(layers.enumerated()), id: \.element.id) { i, layer in
-                    PencilCanvasView(canvasView: $layers[i].canvas)
-                        .ignoresSafeArea()
-                        .opacity(layer.isVisible ? 1 : 0)
-                        .allowsHitTesting(getActiveLayer() == i)
-                }
-            } else {
-                Text("File not found")
+            ForEach(Array(score.layers.enumerated()), id: \.element.id) { i, layer in
+//                let _ =  print("\(i) \(layer.pages.count) \(currentPage)")
+
+                PencilCanvasView(
+                    drawingData: $score.layers[i].pages[currentPage].drawingData,
+                    tool: Constants.tools[activeToolIndex].makePKTool()
+                )
+                    .ignoresSafeArea()
+                    .opacity(layer.isVisible ? 1 : 0)
+                    .allowsHitTesting(getActiveLayer() == i)
             }
             
             VStack {
@@ -82,7 +67,7 @@ struct ScorePage: View {
                             Image(systemName: "square.3.layers.3d")
                         }
                         .popover(isPresented: $showLayerPopover) {
-                            LayerPopover(layers: $layers, activeLayer: $activeLayer, activeTool: toolPresets[activeToolIndex].makePKTool())
+//                            LayerPopover(layers: $score.layers, activeLayer: $activeLayer, activeTool: Constants.tools[activeToolIndex].makePKTool())
                         }
                     }
                     .font(.system(size: 20, weight: .semibold))
@@ -93,9 +78,9 @@ struct ScorePage: View {
                     Spacer()
                     
                     Button {
-                        layers[0].isVisible.toggle()
+                        score.layers[0].isVisible.toggle()
                     } label: {
-                        Image(systemName: layers[0].isVisible ? "eye" : "eye.slash")
+                        Image(systemName: score.layers[0].isVisible ? "eye" : "eye.slash")
                             .font(.system(size: 22, weight: .semibold))
                             .padding(10)
                             .frame(height: 22) 
@@ -107,14 +92,13 @@ struct ScorePage: View {
                 
                 HStack(spacing: 0) {
                     HStack(spacing: 3) {
-                        ForEach(Array(toolPresets.enumerated()), id: \.element.id) { i, toolPreset in
+                        ForEach(Array(Constants.tools.enumerated()), id: \.element.id) { i, toolPreset in
                             Button {
                                 if activeToolIndex == i {
                                     editingPresetIndex = i
                                 } else {
                                     isErasing = toolPreset.kind.isErasing
                                     activeToolIndex = i
-                                    applyActiveTool()
                                 }
                             } label: {
                                 VStack(spacing: 2) {
@@ -135,20 +119,19 @@ struct ScorePage: View {
                                 get: { editingPresetIndex == i },
                                 set: { if !$0 {editingPresetIndex = nil } }
                             )) {
-                                toolPresets[i].kind.editorView(
+                                Constants.tools[i].kind.editorView(
                                     preset: Binding(
-                                        get: { toolPresets[i] },
-                                        set: { toolPresets[i] = $0; applyActiveTool() }
+                                        get: { Constants.tools[i] },
+                                        set: { Constants.tools[i] = $0 }
                                     ),
                                     remove: {
-                                        toolPresets.remove(at: i)
+                                        Constants.tools.remove(at: i)
                                         editingPresetIndex = nil
-                                        if !toolPresets.isEmpty {
+                                        if !Constants.tools.isEmpty {
                                             activeToolIndex = 0
-                                            applyActiveTool()
                                         }
                                     },
-                                    removable: toolPresets.count > 1
+                                    removable: Constants.tools.count > 1
                                 )
                             }
                             
@@ -159,9 +142,8 @@ struct ScorePage: View {
                     Menu {
                         ForEach(ToolKind.allCases, id: \.self) { kind in
                             Button {
-                                toolPresets.append(ToolPreset.newDefault(for: kind))
-                                activeToolIndex = toolPresets.count - 1
-                                applyActiveTool()
+                                Constants.tools.append(ToolPreset.newDefault(for: kind))
+                                activeToolIndex = Constants.tools.count - 1
                             } label: {
                                 Text(kind.label)
                                 iconView(icon: kind.icon)
@@ -178,22 +160,10 @@ struct ScorePage: View {
             }
         }
         .navigationBarHidden(true)
-        .onAppear {
-            applyActiveTool()
-            selectedColor = toolPresets[0].color
-            selectedWidth = toolPresets[0].width
-        }
-    }
-        
-    private func applyActiveTool() {
-        let t = toolPresets[activeToolIndex].makePKTool()
-        for layer in layers {
-            layer.canvas.tool = t
-        }
     }
     
     private func getActiveLayer() -> Int {
-        if toolPresets[activeToolIndex].editingWhiteout {
+        if Constants.tools[activeToolIndex].editingWhiteout {
             return 0
         } else {
             return activeLayer
@@ -215,6 +185,11 @@ struct ScorePage: View {
     }
 }
 
-#Preview {
-    ScorePage(score: Score(title: "Test", pageCount: 1, size: 0.1, fileName: "26F-Concertmaster"))
-}
+//#Preview {
+//    if let u = Bundle.main.url(forResource: "26F-Concertmaster", withExtension: "pdf"),
+//           let s = Score(file: u) {
+//        ScorePage(score: s, pageIndex:0)
+//        } else {
+//            Text("Failed to load preview score")
+//        }
+//}
