@@ -31,54 +31,9 @@ struct EraserEditorView: View {
 
     var body: some View {
         VStack(spacing: 15) {
-            HStack {
-                Button {
-                    preset.reset()
-                } label: {
-                    Text("Reset")
-                }
-                
-                Spacer()
-                
-                Text("Eraser")
-                    .font(.headline)
-                
-                Spacer()
-                
-                Button(role: .destructive) {
-                    remove()
-                } label: {
-                    Text("Remove")
-                }
-                .disabled(!removable)
-            }
+            GeneralBar(preset: $preset, remove: remove, removable: removable, resetable: true)
             
-            Divider()
-                .padding(.vertical, 5)
-            
-            HStack {
-                Text("Eraser Width")
-                    .font(.subheadline)
-                    .bold()
-                
-                Spacer()
-                
-                TextField("", text: $widthText)
-                    .frame(width: 40)
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.center)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit {
-                        if let value = Double(widthText) {
-                            width.wrappedValue = CGFloat(value)
-                        }
-                    }
-            }
-                
-            Slider(value: width, in: 1...30)
-                .onChange(of: width.wrappedValue) { _, newValue in
-                    widthText = String(format: "%.0f", newValue)
-                }
+            StrokeWidthBar(preset: $preset)
             
             Text("Eraser Type")
                 .font(.subheadline)
