@@ -12,16 +12,7 @@ struct EraserEditorView: View {
     @Binding var preset: ToolPreset
     var remove: () -> Void
     let removable: Bool
-    
-    @State private var widthText: String = ""
-    
-    private var width: Binding<CGFloat> {
-        Binding(
-            get: { preset.width ?? 5 },
-            set: { preset.width = $0 }
-        )
-    }
-    
+
     private var eraserType: Binding<PKEraserTool.EraserType> {
         Binding(
             get: { preset.eraserType ?? .bitmap },
@@ -100,9 +91,6 @@ struct EraserEditorView: View {
         }
         .padding()
         .frame(width: 300)
-        .onAppear {
-            widthText = String(format: "%.0f", width.wrappedValue)
-        }
     }
 }
 
