@@ -9,11 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @ScaledMetric private var titleFontSize: CGFloat = 40
-    @ScaledMetric private var menuFontSize: CGFloat = 25
     @State private var showImporter: Bool = false
     @Query private var scores: [Score] = []
-    
     @Environment(\.modelContext) private var context
     
     var body: some View {
@@ -21,7 +18,7 @@ struct HomeView: View {
             VStack {
                 HStack {
                     Text("Scores")
-                        .font(.system(size: titleFontSize))
+                        .font(.system(size: 40))
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Menu {
@@ -39,9 +36,10 @@ struct HomeView: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
-                            .font(.system(size: menuFontSize))
+                            .font(.system(size: 25))
                     }
                 }
+                .padding(20)
                 .fileImporter(
                     isPresented: $showImporter,
                     allowedContentTypes: [.pdf],
@@ -76,43 +74,56 @@ struct HomeView: View {
                         }
                 }
                 
-                Divider()
                 
-                if scores.count > 0 {
-                    List(scores) { score in
-                        NavigationLink {
-                            ScorePage(score: score, pageIndex: 0)
-                        } label: {
-                            VStack {
-                                Text(score.title)
-                                    .font(.title)
-                                    .bold()
-                                    .foregroundStyle(.scoreText)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .lineLimit(1)
-                                Text(String(format: "%d pages | %.2f MB", score.pageCount, score.size))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.scoreText)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .lineLimit(1)
-                            }
-                            .frame(height: 100)
-                        }
-                        
-                        Divider()
-                    }
-                } else {
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(.black.opacity(0.2))
+                        .frame(height: 1)
                     
-                    Text("Import a score to start")
+                    List {
+                        if scores.count > 0 {
+                                ForEach(scores) { score in
+                                    NavigationLink {
+                                        ScorePage(score: score, pageIndex: 0)
+                                    } label: {
+                                        VStack {
+                                            Text(score.title)
+                                                .font(.title)
+                                                .bold()
+                                                .foregroundStyle(.scoreText)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .lineLimit(1)
+                                            Text(String(format: "%d pages | %.2f MB", score.pageCount, score.size))
+                                                .font(.subheadline)
+                                                .foregroundStyle(.scoreText)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .lineLimit(1)
+                                        }
+                                        .frame(height: 100)
+                                    }
+                                    .listRowSeparator(.hidden)
+                                    .listRowBackground(
+                                        ZStack(alignment: .bottom) {
+                                            Color(.systemBackground)
+                                            
+                                            if (score.id != scores.last?.id) {
+                                                Rectangle()
+                                                    .fill(.black.opacity(0.2))
+                                                    .frame(height: 1)
+                                                    .padding(.horizontal, 20)
+                                            }
+                                        }
+                                    )
+                                }
+                        } else {
+                            Text("Import a score to start")
+                                .frame(maxWidth: .infinity)
+                                .listRowBackground(Color.clear)
+                        }
+                    }
                 }
             }
         }
-        .padding(20)
-//        .task {
-//            guard let u = Bundle.main.url(forResource: "26F-Concertmaster", withExtension: "pdf") else {return }
-//            guard let s = Score(fileName: u) else { return }
-//            context.insert(s)
-//        }
     }
 }
 
